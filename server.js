@@ -12,7 +12,7 @@ const server = http.createServer(app);
 // Configure Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: ['https://canva-backend-n71m.onrender.com/'],
+    origin: ['https://canva-backend-mu.vercel.app/server.js'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   },
