@@ -3,19 +3,32 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 
-const port = process.env.PORT || 3001;
+const port = 3001;
 
 // Create Express app
 const app = express();
 const server = http.createServer(app);
 
+// Configure CORS
+const cors = require('cors');
+app.use(cors({
+  origin: ['https://your-frontend-domain.vercel.app', 'http://localhost:3000'],
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // Configure Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: ['https://canva-backend-mu.vercel.app/'],
+    origin: ['https://your-frontend-domain.vercel.app', 'http://localhost:3000'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   },
+});
+
+// Basic root route for Vercel deployment
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'Backend server is running' });
 });
 
 // Canvas state management
@@ -65,7 +78,12 @@ io.on('connection', (socket) => {
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Start server
-server.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+// For Vercel serverless functions
+module.exports = server;
+
+// Only listen if not in serverless environment
+if (process.env.NODE_ENV !== 'vercel') {
+  server.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+  });
+}
